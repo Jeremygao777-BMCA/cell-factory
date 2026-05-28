@@ -5,6 +5,393 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cell Factory — DNA → RNA → Protein</title>
     <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg-0: #07101d;
+        --bg-1: #0b1a2f;
+        --panel: rgba(9, 17, 32, 0.72);
+        --panel-strong: rgba(13, 23, 43, 0.92);
+        --line: rgba(190, 215, 255, 0.16);
+        --text: #edf3ff;
+        --muted: #a9b8d8;
+        --glow: rgba(110, 181, 255, 0.28);
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+        --A: #2ee59d;
+        --T: #ff4d6d;
+        --C: #57a2ff;
+        --G: #ffcc4d;
+        --U: #b17bff;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1000px 700px at 20% 18%, rgba(107, 76, 255, 0.22), transparent 60%),
+          radial-gradient(900px 600px at 78% 16%, rgba(46, 229, 157, 0.15), transparent 56%),
+          radial-gradient(700px 520px at 70% 78%, rgba(87, 162, 255, 0.12), transparent 55%),
+          linear-gradient(180deg, var(--bg-0), var(--bg-1));
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 100% 26px, 26px 100%;
+        opacity: 0.08;
+        mix-blend-mode: screen;
+      }
+
+      .topbar {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 22px 20px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .brand {
+        display: grid;
+        gap: 6px;
+      }
+
+      .brand .logo {
+        font-size: clamp(26px, 3vw, 38px);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+
+      .brand .subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 60ch;
+      }
+
+      .score {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .pill,
+      .btn {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .pill {
+        padding: 10px 14px;
+        font-size: 13px;
+        backdrop-filter: blur(14px);
+      }
+
+      .btn {
+        padding: 10px 16px;
+        cursor: pointer;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .layout {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 8px 20px 20px;
+        display: grid;
+        grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+      }
+
+      .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.09), transparent 26%),
+          radial-gradient(900px 250px at 50% 0%, rgba(110, 181, 255, 0.12), transparent 55%);
+        pointer-events: none;
+      }
+
+      .panel.left,
+      .panel.right {
+        padding: 22px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(237, 243, 255, 0.88);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 14px;
+      }
+
+      .label {
+        display: block;
+        margin: 0 0 8px;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(237, 243, 255, 0.72);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 104px;
+        resize: vertical;
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(4, 10, 22, 0.78);
+        color: var(--text);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        letter-spacing: 0.04em;
+        outline: none;
+      }
+
+      textarea:focus {
+        border-color: rgba(87, 162, 255, 0.55);
+        box-shadow: 0 0 0 4px rgba(87, 162, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .actions,
+      .tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .actions {
+        margin-top: 12px;
+      }
+
+      .tabs {
+        margin-top: 10px;
+      }
+
+      .tab {
+        padding: 11px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+      }
+
+      .tab:hover {
+        transform: translateY(-1px);
+      }
+
+      .tab.active {
+        background: linear-gradient(135deg, rgba(87, 162, 255, 0.22), rgba(46, 229, 157, 0.18));
+        border-color: rgba(110, 181, 255, 0.44);
+        box-shadow: 0 0 0 1px rgba(110, 181, 255, 0.12) inset, 0 10px 30px rgba(87, 162, 255, 0.12);
+      }
+
+      .divider {
+        height: 1px;
+        margin: 18px 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+      }
+
+      .card {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+        min-height: 200px;
+      }
+
+      .stageHeader {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      #stageTitle {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: -0.03em;
+        text-transform: none;
+      }
+
+      .legend {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      .stage {
+        min-height: 640px;
+        padding: 18px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          radial-gradient(900px 480px at 52% 2%, rgba(110, 181, 255, 0.14), transparent 55%),
+          radial-gradient(700px 420px at 20% 78%, rgba(46, 229, 157, 0.08), transparent 52%),
+          linear-gradient(180deg, rgba(4, 10, 20, 0.9), rgba(7, 12, 24, 0.78));
+      }
+
+      .strand {
+        margin: 12px 0;
+        padding: 14px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .strandTitle {
+        margin-bottom: 10px;
+        color: rgba(237, 243, 255, 0.72);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .seq {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+      }
+
+      .base {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .base[data-b="A"] { outline: 2px solid rgba(46, 229, 157, 0.32); }
+      .base[data-b="T"] { outline: 2px solid rgba(255, 77, 109, 0.32); }
+      .base[data-b="C"] { outline: 2px solid rgba(87, 162, 255, 0.32); }
+      .base[data-b="G"] { outline: 2px solid rgba(255, 204, 77, 0.32); }
+      .base[data-b="U"] { outline: 2px solid rgba(177, 123, 255, 0.32); }
+
+      .rule {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      .rule .pill {
+        font-size: 12px;
+      }
+
+      .footer {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 0 20px 24px;
+        text-align: center;
+        color: rgba(237, 243, 255, 0.58);
+        font-size: 13px;
+      }
+
+      @media (max-width: 1100px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .stage {
+          min-height: 520px;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .score {
+          justify-content: flex-start;
+        }
+
+        .panel.left,
+        .panel.right {
+          padding: 18px;
+        }
+      }
+    </style>
   </head>
   <body>
     <header class="topbar">
