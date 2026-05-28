@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cell Factory — DNA → RNA → Protein</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">Cell Factory</div>
+        <div class="subtitle">DNA replication → transcription → translation</div>
+      </div>
+      <div class="score">
+        <div class="pill" id="pillAct">Act: Replication</div>
+        <div class="pill" id="pillScore">Score: 0</div>
+        <button class="btn ghost" id="btnReset">Reset</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel left">
+        <h2>DNA Editor</h2>
+        <p class="muted">
+          Enter a DNA coding strand (A/T/C/G). We’ll show replication, then
+          transcription (mRNA uses U), then translation (codons → amino acids).
+        </p>
+
+        <div class="row">
+          <label class="label" for="dnaInput">Coding strand (5' → 3')</label>
+          <textarea id="dnaInput" spellcheck="false">ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG</textarea>
+          <div class="row actions">
+            <button class="btn" id="btnRandom">Randomize</button>
+            <button class="btn" id="btnValidate">Validate</button>
+          </div>
+          <div class="hint" id="dnaHint"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Acts</h2>
+        <div class="tabs">
+          <button class="tab active" data-act="replication">Replication</button>
+          <button class="tab" data-act="transcription">Transcription</button>
+          <button class="tab" data-act="translation">Translation</button>
+        </div>
+
+        <div class="card" id="actCard"></div>
+      </section>
+
+      <section class="panel right">
+        <div class="stageHeader">
+          <h2 id="stageTitle">Replication</h2>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="stage" id="stage"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Tip: try changing the DNA, then jump to Translation.
+    </footer>
+
+    <script defer src="./src/app.bundle.js"></script>
+  </body>
+</html>
